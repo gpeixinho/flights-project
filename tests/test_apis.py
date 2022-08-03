@@ -1,7 +1,7 @@
 import datetime
 import pytest
-from opensky.apis import AirportFlightsApi
-from decolar.apis import WebSearchApi
+from ingestion.opensky.apis import AirportFlightsApi
+from ingestion.decolar.apis import WebSearchApi
 from unittest.mock import patch
 
 

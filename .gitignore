@@ -309,9 +309,9 @@ pip-selfcheck.json
 .old
 .scratch
 .env
-opensky/flights/*
-decolar/websearch/*
-anac
+ingestion/opensky/flights/*
+ingestion/decolar/websearch/*
+ingestion/anac
 src
 configs
 acquire_token.py

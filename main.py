@@ -3,13 +3,13 @@ import time
 import configparser
 
 from schedule import repeat, every, run_pending
-from decolar.ingestors import WebSearchIngestor
-from opensky.ingestors import AirportFlightsIngestor
+from ingestion.decolar.ingestors import WebSearchIngestor
+from ingestion.opensky.ingestors import AirportFlightsIngestor
 
 # from opensky.writers import DataWriter
-import decolar.writers
-import opensky.writers
-from decolar.apis import WebSearchApi
+import ingestion.decolar.writers
+import ingestion.opensky.writers
+from ingestion.decolar.apis import WebSearchApi
 
 config = configparser.ConfigParser()
 config.read("configs")
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         airport_flights_ingestor = AirportFlightsIngestor(
             username=username,
             password=password,
-            writer=opensky.writers.LocalWriter,
+            writer=ingestion.opensky.writers.LocalWriter,
             airports=["KTPA", "KCLT"],
             types=["arrival", "departure"],
             default_start_date=datetime.datetime(2022, 6, 21),
@@ -56,12 +56,12 @@ if __name__ == "__main__":
             page_view_id=page_view_id,
             tracking_code=tracking_code,
             gui_version=gui_version,
-            writer=decolar.writers.LocalWriter,
+            writer=ingestion.decolar.writers.LocalWriter,
             from_airports_iata=["GRU", "HND"],
             to_airports_iata=["LHR", "GRU"],
             departure_dates=[
-                datetime.datetime(year=2022, month=7, day=27),
-                datetime.datetime(year=2022, month=7, day=27),
+                datetime.datetime(year=2022, month=10, day=25),
+                datetime.datetime(year=2022, month=10, day=25),
             ],
             return_dates=[None, None],
             adults_list=[None, None],
