@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
-from decolar.apis import WebSearchApi
-from decolar.writers import LocalWriter
+from ingestion.decolar.apis import WebSearchApi
+from ingestion.decolar.writers import LocalWriter
 
 
 class DataIngestor(ABC):

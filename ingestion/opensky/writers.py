@@ -34,7 +34,7 @@ class LocalWriter(DataWriter):
 
     @property
     def filename(self):
-        return f"opensky/{self.api}/{self.airport}/{self.type}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+        return f"data/opensky/{self.api}/{self.airport}/{self.type}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
 
     def _write_row(self, row: str) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
