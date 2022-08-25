@@ -1,8 +1,12 @@
 import datetime
 import os
-from typing import Union, List
 import json
+import boto3
+
+from typing import Union, List
 from abc import ABC, abstractmethod
+from tempfile import NamedTemporaryFile
+
 
 class DataTypeNotSupportedForIngestionException(Exception):
     def __init__(self, data):
@@ -13,17 +17,19 @@ class DataTypeNotSupportedForIngestionException(Exception):
 
 class DataWriter(ABC):
     def __init__(self, api: str) -> None:
-        self.api = api  
-           
+        self.api = api
+
     @property
     @abstractmethod
     def filename(self):
         pass
+
     @abstractmethod
     def write(self, **kwargs):
         pass
 
-class LocalWriter(DataWriter):        
+
+class LocalWriter(DataWriter):
     @property
     def filename(self):
         return f"data/decolar/{self.api}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
@@ -42,6 +48,33 @@ class LocalWriter(DataWriter):
         else:
             raise DataTypeNotSupportedForIngestionException(data)
 
+
 class S3Writer(DataWriter):
-    #TODO: implement writer to S3 adopting data lake best practices
-    pass
+    def __init__(self, api: str) -> None:
+        super().__init__(api)
+        self.tempfile = NamedTemporaryFile()
+        self.client = boto3.client("s3")
+        self.bucket = "teste-s3-20220824"
+
+    @property
+    def filename(self):
+        return f"decolar/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+
+    def _write_row(self, row: str) -> None:
+        self.tempfile.write(row)
+
+    def _write_file_to_s3(self) -> None:
+        self.tempfile.seek(0)
+        self.client.put_object(
+            Body=self.tempfile, Bucket=self.bucket, Key=self.filename
+        )
+
+    def write(self, data: Union[List, dict]) -> None:
+        if isinstance(data, dict):
+            self._write_row(f"{json.dumps(data)}\n".encode("utf-8"))
+        elif isinstance(data, List):
+            for element in data:
+                self.write(element)
+        else:
+            raise DataTypeNotSupportedForIngestionException(data)
+        self._write_file_to_s3()

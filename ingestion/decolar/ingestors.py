@@ -108,8 +108,7 @@ class WebSearchIngestor(DataIngestor):
                     if value is not None
                 },
             )
-            writer = LocalWriter(api="websearch")
-            writer.write(data)
+            self.writer(api="websearch").write(data)
             page_count = data.get("pagination").get("pageCount")
             if page_count > 1:
                 items_count = data.get("pagination").get("itemsCount")
@@ -129,5 +128,5 @@ class WebSearchIngestor(DataIngestor):
                             if value is not None
                         },
                     )
-                    writer.write(data)
+                    self.writer(api="websearch").write(data)
                     offset += 10

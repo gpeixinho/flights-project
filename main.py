@@ -28,7 +28,7 @@ gui_version = config["DECOLAR"]["gui_version"]
 source = "decolar"
 
 if __name__ == "__main__":
-    
+
     if source == "opensky":
         airport_flights_ingestor = AirportFlightsIngestor(
             username=username,
@@ -56,7 +56,8 @@ if __name__ == "__main__":
             page_view_id=page_view_id,
             tracking_code=tracking_code,
             gui_version=gui_version,
-            writer=ingestion.decolar.writers.LocalWriter,
+            # writer=ingestion.decolar.writers.LocalWriter,
+            writer=ingestion.decolar.writers.S3Writer,
             from_airports_iata=["GRU", "HND"],
             to_airports_iata=["LHR", "GRU"],
             departure_dates=[

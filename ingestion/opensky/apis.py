@@ -10,6 +10,7 @@ from requests.exceptions import HTTPError
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class EmptyResponseException(Exception):
     def __init__(self):
         self.message = f"Got HTTP error 404 and empty response from server"
@@ -45,7 +46,7 @@ class OpenSkyApi(ABC):
         except HTTPError as err:
             if err.response.status_code == 404 and len(response.json()) == 0:
                 logger.error(f"Got empty response from server")
-                raise(EmptyResponseException) from err
+                raise (EmptyResponseException) from err
             else:
                 raise
         return response.json()
