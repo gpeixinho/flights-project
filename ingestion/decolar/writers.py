@@ -54,10 +54,10 @@ class S3Writer(DataWriter):
         super().__init__(api)
         self.tempfile = NamedTemporaryFile()
         self.client = boto3.client("s3")
-        self.bucket = "teste-s3-20220824"
+        self.bucket = "flights-data-lake-raw"
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return f"decolar/{self.api}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
 
     def _write_row(self, row: str) -> None:
