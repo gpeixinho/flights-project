@@ -9,7 +9,10 @@ from ingestion.opensky.ingestors import AirportFlightsIngestor
 # from opensky.writers import DataWriter
 import ingestion.decolar.writers
 import ingestion.opensky.writers
+import ingestion.wikipedia.writers
+
 from ingestion.decolar.apis import WebSearchApi
+from ingestion.wikipedia.scrapers import AirportCodeScraper
 
 config = configparser.ConfigParser()
 config.read("configs")
@@ -25,7 +28,7 @@ page_view_id = config["DECOLAR"]["page_view_id"]
 tracking_code = config["DECOLAR"]["tracking_code"]
 gui_version = config["DECOLAR"]["gui_version"]
 
-source = "decolar"
+source = "wikipedia"
 
 if __name__ == "__main__":
 
@@ -58,15 +61,32 @@ if __name__ == "__main__":
             gui_version=gui_version,
             # writer=ingestion.decolar.writers.LocalWriter,
             writer=ingestion.decolar.writers.S3Writer,
-            from_airports_iata=["GRU", "HND"],
-            to_airports_iata=["LHR", "GRU"],
+            from_airports_iata=["GRU", "GRU", "GRU", "GRU", "GRU"],
+            to_airports_iata=  ["LHR", "LHR", "LHR", "LHR", "LHR"],
             departure_dates=[
-                datetime.datetime(year=2022, month=10, day=25),
-                datetime.datetime(year=2022, month=10, day=25),
+                datetime.datetime(year=2022, month=11, day=30),
+                datetime.datetime(year=2022, month=12, day=1),
+                datetime.datetime(year=2022, month=12, day=2),
+                datetime.datetime(year=2022, month=12, day=3),
+                datetime.datetime(year=2022, month=12, day=4),
             ],
-            return_dates=[None, None],
-            adults_list=[None, None],
-            children_list=[None, None],
-            infants_list=[None, None],
+            return_dates=[
+                datetime.datetime(year=2023, month=1, day=5),
+                datetime.datetime(year=2023, month=1, day=6),
+                datetime.datetime(year=2023, month=1, day=7),
+                datetime.datetime(year=2023, month=1, day=8),
+                datetime.datetime(year=2023, month=1, day=9),
+            ],
+            adults_list=[None] * 5,
+            children_list=[None] * 5,
+            infants_list=[None] * 5,
         )
         websearch_ingestor.ingest()
+
+    if source == 'wikipedia':
+        airport_code_scraper = AirportCodeScraper(letter='A')
+        airport_writer = ingestion.wikipedia.writers.LocalWriter(f"{airport_code_scraper.path}/{airport_code_scraper.letter}")
+        response = airport_code_scraper.get_data()
+        airport_writer.write(response)
+
+
