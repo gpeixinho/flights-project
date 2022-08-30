@@ -40,7 +40,7 @@ class LocalWriter(DataWriter):
 
     def _write_file(self, data: pd.DataFrame) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-        data.to_csv(self.filename)
+        data.to_csv(self.filename, index=False)
         self._file_counter += 1
 
     def write(self, data: Union[List, pd.DataFrame]):
@@ -72,7 +72,7 @@ class S3Writer(DataWriter):
     
     def write(self, data: Union[List, pd.DataFrame]):
         if isinstance(data, pd.DataFrame):
-            data.to_csv(self.tempfile, encoding='utf-8')
+            data.to_csv(self.tempfile, encoding='utf-8', index=False)
             self._write_file_to_s3()
             self._file_counter += 1
         elif isinstance(data, List):
