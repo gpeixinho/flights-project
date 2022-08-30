@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
+from tokenize import Name
 from typing import List, Union
 import pandas as pd
 import os
+import boto3
+from tempfile import NamedTemporaryFile
+import datetime
 
 
 class DataTypeNotSupportedForIngestionException(Exception):
@@ -28,20 +32,49 @@ class DataWriter(ABC):
 class LocalWriter(DataWriter):
     def __init__(self, path: str) -> None:
         super().__init__(path)
-        self.file_counter = 0
+        self._file_counter = 0
 
     @property
     def filename(self):
-        return f"data/wikipedia/{self.path}/"
+        return f"data/wikipedia/{self.path}/tb_{self._file_counter}.csv"
 
     def _write_file(self, data: pd.DataFrame) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-        data.to_csv(f"{self.filename}tb_{self.file_counter}.csv")
-        self.file_counter += 1
+        data.to_csv(self.filename)
+        self._file_counter += 1
 
     def write(self, data: Union[List, pd.DataFrame]):
         if isinstance(data, pd.DataFrame):
             self._write_file(data)
+        elif isinstance(data, List):
+            for element in data:
+                self.write(element)
+        else:
+            raise DataTypeNotSupportedForIngestionException(data)
+
+class S3Writer(DataWriter):
+    def __init__(self, path: str) -> None:
+        super().__init__(path)
+        self.tempfile = NamedTemporaryFile(suffix='.csv')
+        self.client = boto3.client("s3")
+        self.bucket = "flights-data-lake-raw"
+        self._file_counter = 0
+
+    @property
+    def filename(self):
+        return f"wikipedia/{self.path}/extracted_at={datetime.datetime.now().date()}/tb_{self._file_counter}.csv"
+
+    def _write_file_to_s3(self) -> None:
+        self.tempfile.seek(0)
+        self.client.put_object(
+            Body=self.tempfile, Bucket=self.bucket, Key=self.filename
+        )
+    
+    def write(self, data: Union[List, pd.DataFrame]):
+        if isinstance(data, pd.DataFrame):
+            data.to_csv(self.tempfile, encoding='utf-8')
+            self._write_file_to_s3()
+            self._file_counter += 1
         elif isinstance(data, List):
             for element in data:
                 self.write(element)
