@@ -5,6 +5,7 @@ import configparser
 from schedule import repeat, every, run_pending
 from ingestion.decolar.ingestors import WebSearchIngestor
 from ingestion.opensky.ingestors import AirportFlightsIngestor
+from ingestion.wikipedia.ingestors import AirportCodeIngestor
 
 # from opensky.writers import DataWriter
 import ingestion.decolar.writers
@@ -84,9 +85,6 @@ if __name__ == "__main__":
         websearch_ingestor.ingest()
 
     if source == "wikipedia":
-        airport_code_scraper = AirportCodeScraper(letter="A")
-        airport_writer = ingestion.wikipedia.writers.LocalWriter(
-            f"{airport_code_scraper.path}/{airport_code_scraper.letter}"
-        )
-        response = airport_code_scraper.get_data()
-        airport_writer.write(response)
+        letters=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+        airport_code_ingestor = AirportCodeIngestor(letters=letters, writer=ingestion.wikipedia.writers.LocalWriter)
+        airport_code_ingestor.ingest()
