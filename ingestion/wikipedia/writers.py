@@ -3,11 +3,13 @@ from typing import List, Union
 import pandas as pd
 import os
 
+
 class DataTypeNotSupportedForIngestionException(Exception):
     def __init__(self, data):
         self.data = data
         self.message = f"Data type {type(data)} is not supported for ingestion"
         super().__init__(self.message)
+
 
 class DataWriter(ABC):
     def __init__(self, path: str) -> None:
@@ -21,6 +23,7 @@ class DataWriter(ABC):
     @abstractmethod
     def write(self, **kwargs):
         pass
+
 
 class LocalWriter(DataWriter):
     def __init__(self, path: str) -> None:
@@ -44,5 +47,3 @@ class LocalWriter(DataWriter):
                 self.write(element)
         else:
             raise DataTypeNotSupportedForIngestionException(data)
-
-    

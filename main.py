@@ -62,7 +62,7 @@ if __name__ == "__main__":
             # writer=ingestion.decolar.writers.LocalWriter,
             writer=ingestion.decolar.writers.S3Writer,
             from_airports_iata=["GRU", "GRU", "GRU", "GRU", "GRU"],
-            to_airports_iata=  ["LHR", "LHR", "LHR", "LHR", "LHR"],
+            to_airports_iata=["LHR", "LHR", "LHR", "LHR", "LHR"],
             departure_dates=[
                 datetime.datetime(year=2022, month=11, day=30),
                 datetime.datetime(year=2022, month=12, day=1),
@@ -83,10 +83,10 @@ if __name__ == "__main__":
         )
         websearch_ingestor.ingest()
 
-    if source == 'wikipedia':
-        airport_code_scraper = AirportCodeScraper(letter='A')
-        airport_writer = ingestion.wikipedia.writers.LocalWriter(f"{airport_code_scraper.path}/{airport_code_scraper.letter}")
+    if source == "wikipedia":
+        airport_code_scraper = AirportCodeScraper(letter="A")
+        airport_writer = ingestion.wikipedia.writers.LocalWriter(
+            f"{airport_code_scraper.path}/{airport_code_scraper.letter}"
+        )
         response = airport_code_scraper.get_data()
         airport_writer.write(response)
-
-
