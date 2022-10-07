@@ -60,10 +60,13 @@ class DataIngestor(ABC):
 class AirportFlightsIngestor(DataIngestor):
     def ingest(self) -> None:
         date = self._load_checkpoint()
-        if date < datetime.datetime.now():
+        today = datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())
+        four_days_ago = today - datetime.timedelta(days=4) 
+        if date < four_days_ago:
             for airport in self.airports:
                 begin = datetime.datetime(date.year, date.month, date.day)
                 end = begin + datetime.timedelta(days=7)
+                end = end if end < four_days_ago else four_days_ago
                 api = AirportFlightsApi(
                     username=self.username, password=self.password, airport=airport
                 )
@@ -71,3 +74,8 @@ class AirportFlightsIngestor(DataIngestor):
                     data = api.get_data(begin=begin, end=end, type=type)
                     self.writer(airport=airport, api="flights", type=type).write(data)
             self._update_checkpoint(end + datetime.timedelta(seconds=1))
+
+class AllFlightsIngestor(DataIngestor):
+    pass
+
+
