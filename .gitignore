@@ -318,7 +318,7 @@ utils.py
 transformation
 *.checkpoint
 *.drawio
-*.png
+opensky_logo.png
 *.pptx
 
 perf.txt
