@@ -40,7 +40,7 @@ class LocalWriter(DataWriter):
 
     def _write_file(self, data: pd.DataFrame) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-        data.to_csv(self.filename, index=False)
+        data.to_csv(self.filename, index=False, encoding='utf-8')
         self._file_counter += 1
 
     def write(self, data: Union[List, pd.DataFrame]):
