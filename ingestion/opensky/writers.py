@@ -18,10 +18,11 @@ class DataTypeNotSupportedForIngestionException(Exception):
 
 
 class DataWriter(ABC):
-    def __init__(self, airport: str, api: str, type: str) -> None:
+    def __init__(self, api: str, type: str, airport: str = None) -> None:
         self.api = api
-        self.airport = airport
         self.type = type
+        if type != "all":
+            self.airport = airport
 
     @property
     @abstractmethod
@@ -36,7 +37,9 @@ class DataWriter(ABC):
 class LocalWriter(DataWriter):
     @property
     def filename(self):
-        return f"data/opensky/{self.api}/{self.airport}/{self.type}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+        if self.type != "all":
+            return f"data/opensky/{self.api}/{self.type}/airport={self.airport}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+        return f"data/opensky/{self.api}/{self.type}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
 
     def _write_row(self, row: str) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)

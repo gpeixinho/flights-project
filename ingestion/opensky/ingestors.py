@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from typing import List
-from ingestion.opensky.apis import AirportFlightsApi
+from ingestion.opensky.apis import AirportFlightsApi, AllFlightsApi
 
 import logging
 
@@ -14,17 +14,13 @@ class DataIngestor(ABC):
         self,
         username: str,
         password: str,
-        writer,
-        airports: List[str],
-        types: List[str],
         default_start_date: datetime.date,
+        writer
     ) -> None:
         self.username = username
         self.password = password
         self.default_start_date = default_start_date
         self.writer = writer
-        self.airports = airports
-        self.types = types
         self._checkpoint = self._load_checkpoint()
 
     @property
@@ -58,10 +54,25 @@ class DataIngestor(ABC):
 
 
 class AirportFlightsIngestor(DataIngestor):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        default_start_date: datetime.date,
+        writer,
+        airports: List[str],
+        types: List[str],
+    ):
+        super().__init__(username, password, default_start_date, writer)
+        self.airports = airports
+        self.types = types
+
     def ingest(self) -> None:
         date = self._load_checkpoint()
-        today = datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())
-        four_days_ago = today - datetime.timedelta(days=4) 
+        today = datetime.datetime.combine(
+            datetime.date.today(), datetime.datetime.min.time()
+        )
+        four_days_ago = today - datetime.timedelta(days=4)
         if date < four_days_ago:
             for airport in self.airports:
                 begin = datetime.datetime(date.year, date.month, date.day)
@@ -76,6 +87,17 @@ class AirportFlightsIngestor(DataIngestor):
             self._update_checkpoint(end + datetime.timedelta(seconds=1))
 
 class AllFlightsIngestor(DataIngestor):
-    pass
-
-
+    def ingest(self) -> None:
+        date = self._load_checkpoint()
+        today = datetime.datetime.combine(
+            datetime.date.today(), datetime.datetime.min.time()
+        )
+        four_days_ago = today - datetime.timedelta(days=4)
+        if date < four_days_ago:
+            begin = date #datetime.datetime(date.year, date.month, date.day)
+            end = begin + datetime.timedelta(hours=2)
+            end = end if end < four_days_ago else four_days_ago
+            api = AllFlightsApi(username=self.username, password=self.password)
+            data = api.get_data(begin=begin, end=end)
+            self.writer(api="flights", type="all").write(data)
+            self._update_checkpoint(end + datetime.timedelta(seconds=1))

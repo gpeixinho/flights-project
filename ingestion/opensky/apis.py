@@ -31,6 +31,9 @@ class OpenSkyApi(ABC):
     def _get_params(self, **kwargs) -> dict:
         pass
 
+    def _get_unix_epoch(self, datetime: datetime) -> int:
+        return int(datetime.timestamp())
+
     @on_exception(expo, ratelimit.exception.RateLimitException, max_tries=10)
     @ratelimit.limits(calls=29, period=30)
     @on_exception(expo, requests.exceptions.HTTPError, max_tries=10)
@@ -57,11 +60,8 @@ class AirportFlightsApi(OpenSkyApi):
         super().__init__(username, password)
         self.airport = airport
 
-    def _get_unix_epoch(self, datetime: datetime) -> int:
-        return int(datetime.timestamp())
-
     def _get_endpoint(self, type: str, **kwargs) -> str:
-        if type not in ["arrival", "departure", "all"]:
+        if type not in ["arrival", "departure"]:
             raise ValueError("type should be either arrival or departure")
         endpoint = f"{self.base_endpoint}/flights/{type}"
         return endpoint
@@ -78,6 +78,31 @@ class AirportFlightsApi(OpenSkyApi):
             raise RuntimeError("begin date cannot be later than now")
         params = {}
         params["airport"] = self.airport
+        params["begin"] = str(self._get_unix_epoch(begin))
+        params["end"] = str(self._get_unix_epoch(end))
+        return params
+
+
+class AllFlightsApi(OpenSkyApi):
+    def __init__(self, username: str, password: str):
+        super().__init__(username, password)
+        self.type = "all"
+
+    def _get_endpoint(self, **kwargs) -> str:
+        endpoint = f"{self.base_endpoint}/flights/{self.type}"
+        return endpoint
+
+    def _get_params(self, begin: datetime, end: datetime) -> dict:
+        if begin > end:
+            raise RuntimeError("begin cannot be greater end")
+        unix_begin = self._get_unix_epoch(begin)
+        unix_end = self._get_unix_epoch(end)
+        unix_now = self._get_unix_epoch(datetime.datetime.now())
+        if unix_end - unix_begin > 7200:
+            raise RuntimeError("the time interval cannot be greater than 2 hours")
+        if unix_begin > unix_now:
+            raise RuntimeError("begin date cannot be later than now")
+        params = {}
         params["begin"] = str(self._get_unix_epoch(begin))
         params["end"] = str(self._get_unix_epoch(end))
         return params
