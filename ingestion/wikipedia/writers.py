@@ -40,7 +40,7 @@ class LocalWriter(DataWriter):
 
     def _write_file(self, data: pd.DataFrame) -> None:
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-        data.to_csv(self.filename, index=False, encoding='utf-8')
+        data.to_csv(self.filename, index=False, encoding="utf-8")
         self._file_counter += 1
 
     def write(self, data: Union[List, pd.DataFrame]):
@@ -52,10 +52,11 @@ class LocalWriter(DataWriter):
         else:
             raise DataTypeNotSupportedForIngestionException(data)
 
+
 class S3Writer(DataWriter):
     def __init__(self, path: str) -> None:
         super().__init__(path)
-        self.tempfile = NamedTemporaryFile(suffix='.csv')
+        self.tempfile = NamedTemporaryFile(suffix=".csv")
         self.client = boto3.client("s3")
         self.bucket = "flights-data-lake-raw"
         self._file_counter = 0
@@ -69,10 +70,10 @@ class S3Writer(DataWriter):
         self.client.put_object(
             Body=self.tempfile, Bucket=self.bucket, Key=self.filename
         )
-    
+
     def write(self, data: Union[List, pd.DataFrame]):
         if isinstance(data, pd.DataFrame):
-            data.to_csv(self.tempfile, encoding='utf-8', index=False)
+            data.to_csv(self.tempfile, encoding="utf-8", index=False)
             self._write_file_to_s3()
             self._file_counter += 1
         elif isinstance(data, List):
