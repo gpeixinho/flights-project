@@ -1,14 +1,15 @@
 import datetime
 import json
 import os
-from typing import List, Union
+import boto3
 import logging
-from abc import ABC, abstractmethod, abstractproperty
 
+from typing import List, Union
+from abc import ABC, abstractmethod
+from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
 
 class DataTypeNotSupportedForIngestionException(Exception):
     def __init__(self, data):
@@ -57,5 +58,36 @@ class LocalWriter(DataWriter):
 
 
 class S3Writer(DataWriter):
-    # TODO: implement writer to S3 adopting data lake best practices
-    pass
+    def __init__(self, api: str, type: str, airport: str = None) -> None:
+        super().__init__(api, type, airport)
+        self.tempfile = NamedTemporaryFile()
+        self.client = boto3.client("s3")
+        self.bucket = "flights-data-lake-raw"
+
+    @property
+    def filename(self) -> str:
+        if self.type != "all":
+            return f"opensky/{self.api}/{self.type}/airport={self.airport}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+        return f"opensky/{self.api}/{self.type}/extracted_at={datetime.datetime.now().date()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+
+    def _write_row(self, row: str) -> None:
+        self.tempfile.write(row)
+
+    def _write_file_to_s3(self) -> None:
+        self.tempfile.seek(0)
+        self.client.put_object(
+            Body=self.tempfile, Bucket=self.bucket, Key=self.filename
+        )
+
+    def _write_to_file(self, data: Union[List, dict]) -> None:
+        if isinstance(data, dict):
+            self._write_row(f"{json.dumps(data)}\n".encode("utf-8"))
+        elif isinstance(data, List):
+            for element in data:
+                self._write_to_file(element)
+        else:
+            raise DataTypeNotSupportedForIngestionException(data)
+
+    def write(self, data: Union[List, dict]) -> None:
+        self._write_to_file(data)
+        self._write_file_to_s3()
