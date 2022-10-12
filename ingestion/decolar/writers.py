@@ -69,7 +69,7 @@ class S3Writer(DataWriter):
             Body=self.tempfile, Bucket=self.bucket, Key=self.filename
         )
 
-    def write(self, data: Union[List, dict]) -> None:
+    def _write_to_file(self, data: Union[List, dict]) -> None:
         if isinstance(data, dict):
             self._write_row(f"{json.dumps(data)}\n".encode("utf-8"))
         elif isinstance(data, List):
@@ -77,4 +77,7 @@ class S3Writer(DataWriter):
                 self.write(element)
         else:
             raise DataTypeNotSupportedForIngestionException(data)
+        
+    def write(self, data: Union[List, dict]) -> None:
+        self._write_to_file(data)
         self._write_file_to_s3()
