@@ -11,7 +11,6 @@ class TestAirportFlightsApi:
         [
             ("arrival", "https://opensky-network.org/api/flights/arrival"),
             ("departure", "https://opensky-network.org/api/flights/departure"),
-            ("all", "https://opensky-network.org/api/flights/all"),
         ],
     )
     def test_get_endpoint(self, type, expected):
