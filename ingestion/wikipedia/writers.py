@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from tokenize import Name
 from typing import List, Union
 import pandas as pd
 import os
@@ -65,19 +64,20 @@ class S3Writer(DataWriter):
     def filename(self):
         return f"wikipedia/{self.path}/extracted_at={datetime.datetime.now().date()}/tb_{self._file_counter}.csv"
 
-    def _write_file_to_s3(self) -> None:
-        self.tempfile.seek(0)
+    def _write_file_to_s3(self, file) -> None:
+        file.seek(0)
         self.client.put_object(
-            Body=self.tempfile, Bucket=self.bucket, Key=self.filename
+            Body=file, Bucket=self.bucket, Key=self.filename
         )
 
-    def write(self, data: Union[List, pd.DataFrame]):
+    def write(self, data: Union[List, pd.DataFrame]) -> None:
         if isinstance(data, pd.DataFrame):
-            data.to_csv(self.tempfile, encoding="utf-8", index=False)
-            self._write_file_to_s3()
-            self._file_counter += 1
+            tempfile=NamedTemporaryFile(suffix=".csv")
+            data.to_csv(tempfile, encoding="utf-8", index=False)
+            self._write_file_to_s3(tempfile)
+            self._file_counter += 1    
         elif isinstance(data, List):
             for element in data:
                 self.write(element)
         else:
-            raise DataTypeNotSupportedForIngestionException(data)
+            raise DataTypeNotSupportedForIngestionException(data)     
