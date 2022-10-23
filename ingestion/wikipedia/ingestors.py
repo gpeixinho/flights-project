@@ -21,4 +21,4 @@ class AirportCodeIngestor(DataIngestor):
         for letter in self.letters:
             scraper = AirportCodeScraper(letter=letter)
             data = scraper.get_data()
-            self.writer(path=f"{scraper.path}/{scraper.letter}").write(data)
+            self.writer(path=f"{scraper.path}/letter={scraper.letter}").write(data)
