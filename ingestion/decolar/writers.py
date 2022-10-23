@@ -77,7 +77,7 @@ class S3Writer(DataWriter):
                 self.write(element)
         else:
             raise DataTypeNotSupportedForIngestionException(data)
-        
+
     def write(self, data: Union[List, dict]) -> None:
         self._write_to_file(data)
         self._write_file_to_s3()

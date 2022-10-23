@@ -11,6 +11,7 @@ from tempfile import NamedTemporaryFile
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class DataTypeNotSupportedForIngestionException(Exception):
     def __init__(self, data):
         self.data = data

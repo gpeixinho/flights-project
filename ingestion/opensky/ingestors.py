@@ -11,11 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 class DataIngestor(ABC):
     def __init__(
-        self,
-        username: str,
-        password: str,
-        default_start_date: datetime.date,
-        writer
+        self, username: str, password: str, default_start_date: datetime.date, writer
     ) -> None:
         self.username = username
         self.password = password
@@ -86,6 +82,7 @@ class AirportFlightsIngestor(DataIngestor):
                     self.writer(airport=airport, api="flights", type=type).write(data)
             self._update_checkpoint(end + datetime.timedelta(seconds=1))
 
+
 class AllFlightsIngestor(DataIngestor):
     def ingest(self) -> None:
         date = self._load_checkpoint()
@@ -94,7 +91,7 @@ class AllFlightsIngestor(DataIngestor):
         )
         four_days_ago = today - datetime.timedelta(days=4)
         if date < four_days_ago:
-            begin = date #datetime.datetime(date.year, date.month, date.day)
+            begin = date  # datetime.datetime(date.year, date.month, date.day)
             end = begin + datetime.timedelta(hours=2)
             end = end if end < four_days_ago else four_days_ago
             api = AllFlightsApi(username=self.username, password=self.password)

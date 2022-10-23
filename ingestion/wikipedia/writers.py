@@ -66,18 +66,16 @@ class S3Writer(DataWriter):
 
     def _write_file_to_s3(self, file) -> None:
         file.seek(0)
-        self.client.put_object(
-            Body=file, Bucket=self.bucket, Key=self.filename
-        )
+        self.client.put_object(Body=file, Bucket=self.bucket, Key=self.filename)
 
     def write(self, data: Union[List, pd.DataFrame]) -> None:
         if isinstance(data, pd.DataFrame):
-            tempfile=NamedTemporaryFile(suffix=".csv")
+            tempfile = NamedTemporaryFile(suffix=".csv")
             data.to_csv(tempfile, encoding="utf-8", index=False)
             self._write_file_to_s3(tempfile)
-            self._file_counter += 1    
+            self._file_counter += 1
         elif isinstance(data, List):
             for element in data:
                 self.write(element)
         else:
-            raise DataTypeNotSupportedForIngestionException(data)     
+            raise DataTypeNotSupportedForIngestionException(data)
