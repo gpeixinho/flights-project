@@ -100,8 +100,6 @@ class AllFlightsApi(OpenSkyApi):
         unix_now = self._get_unix_epoch(datetime.datetime.now())
         if unix_end - unix_begin > 7200:
             raise RuntimeError("the time interval cannot be greater than 2 hours")
-        if unix_begin > unix_now:
-            raise RuntimeError("begin date cannot be later than now")
         params = {}
         params["begin"] = str(self._get_unix_epoch(begin))
         params["end"] = str(self._get_unix_epoch(end))
