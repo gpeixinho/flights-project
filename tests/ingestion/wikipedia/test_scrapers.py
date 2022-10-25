@@ -1,7 +1,6 @@
 import pytest
 from ingestion.wikipedia.scrapers import AirportCodeScraper
 
-
 class TestAirportCodeScraper:
     @pytest.mark.parametrize(
         "letter, expected",
