@@ -94,7 +94,7 @@ class AllFlightsApi(OpenSkyApi):
 
     def _get_params(self, begin: datetime, end: datetime) -> dict:
         if begin > end:
-            raise RuntimeError("begin cannot be greater end")
+            raise RuntimeError("begin cannot be greater than end")
         unix_begin = self._get_unix_epoch(begin)
         unix_end = self._get_unix_epoch(end)
         unix_now = self._get_unix_epoch(datetime.datetime.now())
