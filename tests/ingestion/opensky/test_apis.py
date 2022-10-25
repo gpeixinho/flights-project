@@ -1,6 +1,27 @@
 import datetime
 import pytest
+
+from ingestion.opensky.apis import OpenSkyApi
 from ingestion.opensky.apis import AirportFlightsApi
+from ingestion.opensky.apis import AllFlightsApi
+
+
+class TestOpenSkyApi:
+    @pytest.mark.parametrize(
+        "datetime, expected",
+        [
+            (datetime.datetime(2022, 6, 30), 1656558000),
+            (datetime.datetime(2022, 7, 1), 1656644400),
+            (datetime.datetime(2022, 3, 30), 1648609200),
+            (datetime.datetime(2022, 6, 30, 0, 0, 5), 1656558005),
+        ],
+    )
+    def test_get_unix_epoch(self, datetime, expected):
+        actual = OpenSkyApi(
+            username="user", password="pass", airport="SBGR"
+        )._get_unix_epoch(datetime)
+        assert actual == expected
+
 
 class TestAirportFlightsApi:
     @pytest.mark.parametrize(
@@ -20,21 +41,6 @@ class TestAirportFlightsApi:
             AirportFlightsApi(
                 username="user", password="pass", airport="SBGR"
             )._get_endpoint("not_arrival")
-
-    @pytest.mark.parametrize(
-        "datetime, expected",
-        [
-            (datetime.datetime(2022, 6, 30), 1656558000),
-            (datetime.datetime(2022, 7, 1), 1656644400),
-            (datetime.datetime(2022, 3, 30), 1648609200),
-            (datetime.datetime(2022, 6, 30, 0, 0, 5), 1656558005),
-        ],
-    )
-    def test_get_unix_epoch(self, datetime, expected):
-        actual = AirportFlightsApi(
-            username="user", password="pass", airport="SBGR"
-        )._get_unix_epoch(datetime)
-        assert actual == expected
 
     @pytest.mark.parametrize(
         "airport, begin, end, expected",
@@ -57,4 +63,12 @@ class TestAirportFlightsApi:
         actual = AirportFlightsApi(
             username="user", password="pass", airport=airport
         )._get_params(begin=begin, end=end)
+        assert actual == expected
+
+
+class TestAllFlightsApi:
+    def test_get_endpoint(self, type, expected):
+        api = AllFlightsApi(username="user", password="pass")
+        expected = "https://opensky-network.org/api/flights/all"
+        actual = api._get_endpoint()
         assert actual == expected

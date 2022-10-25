@@ -2,6 +2,7 @@ import datetime
 import pytest
 from ingestion.decolar.apis import WebSearchApi
 
+
 class TestWebSearchApi:
     def test_get_endpoint(self):
         actual = WebSearchApi(
