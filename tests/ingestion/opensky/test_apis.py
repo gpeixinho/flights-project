@@ -1,12 +1,14 @@
 import datetime
 import pytest
 
+from unittest.mock import patch
 from ingestion.opensky.apis import OpenSkyApi
 from ingestion.opensky.apis import AirportFlightsApi
 from ingestion.opensky.apis import AllFlightsApi
 
 
 class TestOpenSkyApi:
+    @patch("ingestion.opensky.apis.OpenSkyApi.__abstractmethods__", set())
     @pytest.mark.parametrize(
         "datetime, expected",
         [
@@ -17,9 +19,7 @@ class TestOpenSkyApi:
         ],
     )
     def test_get_unix_epoch(self, datetime, expected):
-        actual = OpenSkyApi(
-            username="user", password="pass", airport="SBGR"
-        )._get_unix_epoch(datetime)
+        actual = OpenSkyApi(username="user", password="pass")._get_unix_epoch(datetime)
         assert actual == expected
 
 
@@ -67,8 +67,41 @@ class TestAirportFlightsApi:
 
 
 class TestAllFlightsApi:
-    def test_get_endpoint(self, type, expected):
+    def test_get_endpoint(self):
         api = AllFlightsApi(username="user", password="pass")
         expected = "https://opensky-network.org/api/flights/all"
         actual = api._get_endpoint()
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "begin, end, expected",
+        [
+            (
+                datetime.datetime(2022, 6, 30, 1),
+                datetime.datetime(2022, 6, 30, 3),
+                {"begin": "1656561600", "end": "1656568800"},
+            )
+        ],
+    )
+    def test_get_params(self, begin, end, expected):
+        api = AllFlightsApi(username="user", password="pass")
+        actual = api._get_params(
+            begin=begin, end=end
+        )
+        assert actual == expected
+
+    def test_get_params_begin_later_than_now(self):
+        end = datetime.datetime.now()
+        begin = datetime.datetime.now() + datetime.timedelta(minutes=2)
+        with pytest.raises(RuntimeError) as exception_info:
+            api = AllFlightsApi(username="user", password="pass")
+            api._get_params(begin=begin, end=end)
+        assert exception_info.match("begin cannot be greater than end")
+
+    def test_get_params_time_interval_greater_than_2_hours(self):
+        begin = datetime.datetime.now()
+        end = datetime.datetime.now() + datetime.timedelta(hours=2, seconds=1)
+        with pytest.raises(RuntimeError) as exception_info:
+            api = AllFlightsApi(username="user", password="pass")
+            api._get_params(begin=begin, end=end)
+        assert exception_info.match("the time interval cannot be greater than 2 hours") 
