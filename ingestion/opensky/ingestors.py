@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from typing import List
-from ingestion.opensky.apis import AirportFlightsApi, AllFlightsApi
+from opensky.apis import AirportFlightsApi, AllFlightsApi
 
 import logging
 

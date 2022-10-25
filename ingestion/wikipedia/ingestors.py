@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from ingestion.wikipedia.scrapers import AirportCodeScraper
+from wikipedia.scrapers import AirportCodeScraper
 
 
 class DataIngestor(ABC):
