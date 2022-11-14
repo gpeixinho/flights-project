@@ -43,4 +43,4 @@ Os objetivos principais são obter familiaridade e vivência nos processos e fer
   
 
 
-![Pipeline Diagram](imgs\diagram-pt-br_20221113.jpg)
+![Pipeline Diagram](imgs/diagram-pt-br_20221113.jpg)
