@@ -1,4 +1,6 @@
 # Flight Data Ingestion and Analysis Project
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/gpeixinho/flights-project/blob/master/README.md)
+[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/gpeixinho/flights-project/blob/master/README.pt-br.md)
 
 :warning: Under Development! :warning:	
 
