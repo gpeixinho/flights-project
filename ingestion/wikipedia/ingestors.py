@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from wikipedia.scrapers import AirportCodeScraper
+from wikipedia.scrapers import AirlineCodeScraper
 
 
 class DataIngestor(ABC):
@@ -22,3 +23,9 @@ class AirportCodeIngestor(DataIngestor):
             scraper = AirportCodeScraper(letter=letter)
             data = scraper.get_data()
             self.writer(path=f"{scraper.path}/letter={scraper.letter}").write(data)
+
+class AirlineCodeIngestor(DataIngestor):
+    def ingest(self):
+        scraper = AirlineCodeScraper()
+        data = scraper.get_data()
+        self.writer(path=f"{scraper.path}").write(data)
