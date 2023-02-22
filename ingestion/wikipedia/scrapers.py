@@ -36,3 +36,12 @@ class AirportCodeScraper(WikipediaScraper):
     def _get_endpoint(self) -> str:
         endpoint = f"{self.base_endpoint}/wiki/{self.path}:_{self.letter}"
         return endpoint
+
+class AirlineCodeScraper(WikipediaScraper):
+    def __init__(self):
+        super().__init__()
+        self.path = "List_of_airline_codes"
+
+    def _get_endpoint(self) -> str:
+        endpoint = f"{self.base_endpoint}/wiki/{self.path}"
+        return endpoint
