@@ -8,6 +8,7 @@ from decolar.ingestors import WebSearchIngestor
 from opensky.ingestors import AirportFlightsIngestor
 from opensky.ingestors import AllFlightsIngestor
 from wikipedia.ingestors import AirportCodeIngestor
+from wikipedia.ingestors import AirlineCodeIngestor
 
 # from opensky.writers import DataWriter
 import decolar.writers
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         )
         websearch_ingestor.ingest()
 
-    if source == "wikipedia":
+    if source == "wikipedia_airports":
         letters = [
             "A",
             "B",
@@ -143,3 +144,7 @@ if __name__ == "__main__":
             letters=letters, writer=wikipedia.writers.LocalWriter
         )
         airport_code_ingestor.ingest()
+
+    if source == "wikipedia_airlines":
+        airline_code_ingestor = AirlineCodeIngestor(writer=wikipedia.writers.LocalWriter)
+        airline_code_ingestor.ingest()
