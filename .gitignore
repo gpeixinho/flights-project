@@ -322,3 +322,4 @@ opensky_logo.png
 *.pptx
 
 perf.txt
+pyspark-ad-hoc.ipynb
