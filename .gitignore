@@ -309,15 +309,23 @@ pip-selfcheck.json
 .old
 .scratch
 .env
-data
 src
 ingestion/anac
 configs
 acquire_token.py
 utils.py
-transformation
+transformation/main_local.py
+transformation/Makefile
+transformation/payload.json
+transformation/config.json
+transformation/airports_conversion.py
+transformation/arrival_airports.csv
+transformation/*.sh
+data/
+!tests/transformation/data
 *.checkpoint
 *.drawio
+
 opensky_logo.png
 *.pptx
 
